@@ -1,0 +1,45 @@
+<!doctype html>
+<div ng-app="example">
+    <script type="text/javascript" src="http://code.angularjs.org/1.2.0rc1/angular.js"></script>
+    <script type="text/javascript" src="/src/angular.model-validator.js"></script>
+    <style type="text/css" scoped="scoped">
+        input.error { border: 1px solid red; }
+    </style>
+
+    <div ng-controller="mainController">
+        <input type="text" ng-model="name" aq-validate />
+        <div aq-validation-message="name"></div>
+    </div>
+
+    <script type="text/javascript">
+        (function (angular) {
+            angular
+                .module('example', ['aq.modelValidator'])
+                .controller('mainController', function ($log, $scope, $timeout, $validator) {
+                    $validator($scope).rules({
+                        'name': [
+                            'required(3, 8)',
+                            {'$type': 'rx', 'pattern': '^[0-9]+$'}
+                        ]
+                    });
+                    $scope.$watch('name', function () {
+                        $validator($scope).validate(function (result, messages) {
+                            $log.log('result:', result, 'messages:', messages);
+                        });
+                    });
+                    $timeout(function () {
+                        $scope.name = '';
+                        $timeout(function () {
+                            $scope.name = 'ab';
+                            $timeout(function () {
+                                $scope.name = 'abcdefghijk';
+                                $timeout(function () {
+                                    $scope.name = '1234';
+                                }, 1000);
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                });
+        })(angular);
+    </script>
+</div>
